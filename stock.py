@@ -6,7 +6,9 @@ from fuzzywuzzy import process
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVR
+import warnings
 
+warnings.filterwarnings("ignore", category=FutureWarning)
 st.title("Stock Price Analyzer")
 st.write("This tool is developed to analyze stock data, generate plots using technical indicators, and predict stock prices")
 
