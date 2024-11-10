@@ -1,0 +1,10 @@
+streamlit
+yfinance
+plotly
+statsmodels
+scikit-learn
+pandas
+fuzzywuzzy
+openpyxl
+levenshtein
+fsspec
