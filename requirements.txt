@@ -1,6 +1,6 @@
 streamlit
 pandas
-yfinance-0.2.49
+yfinance==0.2.49
 plotly
 fuzzywuzzy
 scikit-learn
