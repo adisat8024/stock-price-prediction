@@ -13,7 +13,7 @@ st.title("Stock Price Analyzer")
 st.write("This tool is developed to analyze stock data, generate plots using technical indicators, and predict stock prices")
 
 # Load the Excel sheet
-company_data = pd.read_excel("G:/Practice/Python/tickers.xlsx")
+company_data = pd.read_excel("tickers.xlsx")
 company_names = company_data["Name"].tolist()
 
 # Default company and ticker
