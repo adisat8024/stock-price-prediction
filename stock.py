@@ -124,14 +124,14 @@ def calculate_pe_ratio_and_market_cap(ticker_symbol, year):
             market_cap = close_price * shares_outstanding if shares_outstanding else np.nan
             pe_ratio = close_price / eps if eps and close_price else np.nan
         else:
-            pe_ratio, market_cap = np.nan, np.nan
+            pe_ratio, market_cap, shares_outstanding = np.nan, np.nan,
 
         return pe_ratio, market_cap
     except Exception as e:
         st.error(f"Error: {e}.")
         return np.nan, np.nan
-
-
+    
+    
 # Plotting function for stock data
 def plot_stock_data(data, compare_data, company_name, compare_company_name,title, show_moving_average=True, enable_comparison=False):
     fig = px.line(data, x=data.index, y='52 Week High', title=title)
@@ -216,36 +216,21 @@ def convert_df_to_csv(df):
     csv = df.to_csv(index=False)
     return csv
 
-def add_predictions_to_data(stock_data, predictions, prediction_years):
-    prediction_dates = pd.date_range(start=stock_data.index[-1], periods=prediction_years, freq='A')
-    prediction_df = pd.DataFrame({"Predicted Close": predictions}, index=prediction_dates)
-    combined_data = pd.concat([stock_data, prediction_df], axis=1)
-    return combined_data
-
-
-def generate_dummy_predictions(stock_data, years_prediction):
-    last_close = stock_data["Year Close"].iloc[-1]
-    return [last_close + i * 10 for i in range(1, years_prediction + 1)]
-
 with st.spinner("Fetching stock data..."):
     stock_data = get_stock_data(selected_ticker, years)
     if not stock_data.empty:
-        predictions = generate_dummy_predictions(stock_data, years_prediction)
-        combined_data = add_predictions_to_data(stock_data, predictions, years_prediction)
         st.write(f"{selected_company} Stock Data:")
         st.write(stock_data)
-        csv = convert_df_to_csv(combined_data)
-        
-        st.download_button(label=f"Download {selected_company} Stock Data as CSV",data=csv,file_name=f"{selected_company}_stock_data.csv",mime="text/csv",)
+        csv = convert_df_to_csv(stock_data)
+        st.download_button(label=f"Download {selected_company} Stock Data",data=csv,file_name=f"{selected_company}_stock_data.csv",mime="text/csv",)
+
         if enable_comparison:
             compare_stock_data = get_stock_data(compare_ticker, years)
             if not compare_stock_data.empty:
-                compare_predictions = generate_dummy_predictions(compare_stock_data, years_prediction)
-                compare_combined_data = add_predictions_to_data(compare_stock_data, compare_predictions, years_prediction)
                 st.write(f"{compare_company} Stock Data:")
                 st.write(compare_stock_data)
                 compare_csv = convert_df_to_csv(compare_stock_data)
-                st.download_button(label=f"Download {compare_company} Stock Data as CSV",data=compare_csv,file_name=f"{compare_company}_stock_data.csv",mime="text/csv",)
+                st.download_button(label=f"Download {compare_company} Stock Data",data=compare_csv,file_name=f"{compare_company}_stock_data.csv",mime="text/csv",)
         else:
             compare_stock_data = None
         if enable_comparison:
@@ -256,11 +241,20 @@ with st.spinner("Fetching stock data..."):
         plot_stock_data(stock_data, compare_stock_data, selected_company, compare_company if enable_comparison else "",graph_title, show_moving_average, enable_comparison)
 
         predicted_data = predict_stock_prices(stock_data, selected_company, years_prediction)
+        
         if enable_comparison and compare_stock_data is not None:
             compare_predicted_data = predict_stock_prices(compare_stock_data, compare_company, years_prediction)
         else:
             compare_predicted_data = pd.DataFrame()
         
         plot_predicted_stock_prices(stock_data, predicted_data, selected_company, years_prediction, enable_comparison, compare_predicted_data, compare_company if enable_comparison else "")
+
+        st.write("Definitions")
+        st.write("52-Week High/Low: This shows the highest and lowest prices the stock has reached in the past 52 weeks") 
+        st.write("Year Open/Close: This indicates the stock's price at the beginning and end of the current calendar year.")
+        st.write("P/E Ratio (Price-to-Earnings Ratio): This measures the price of a stock relative to its earnings per share.") 
+        st.write("Market Capitalization: This represents the total market value of a company's outstanding shares.")
     else:
         st.error(f"No data available for {selected_company}.")
+
+
